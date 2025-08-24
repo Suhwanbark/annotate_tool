@@ -2,7 +2,7 @@ import csv
 import json
 from pathlib import Path
 
-from export import Exporter
+from annotation.export import Exporter
 
 
 def make_project(tmp_path):

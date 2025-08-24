@@ -6,7 +6,8 @@
 - **PDF 전처리**: PyMuPDF로 페이지별 PNG와 텍스트를 생성하며, 필요 시 Tesseract OCR을 통해 이미지/표의 텍스트도 추출합니다.
 - **자동 후보 발굴(Auto-Candidate Mining)**:
   - 정규식 기반 휴리스틱으로 단위(`%`, `tCO2e`, `GJ`, `m³` 등)와 숫자를 탐지하고, 지표별 동의어를 검색하여 관련 후보를 수집합니다.
-  - `config.json`에 LLM 엔드포인트와 API 키를 설정하면 OpenAI 호환 API를 호출하여 추가 후보를 받을 수 있습니다.
+  - `config/config.json`에 `llm_base_url`, `llm_model`, `api_key`를 설정하면 `/responses` 엔드포인트를 호출해 LLM 후보를 가져옵니다. 요청 본문은 `candidate_miner/prompts.py`에 정의된 `CandidateList` JSON Schema를 따릅니다.
+- **초안 주석 제안**: LLM이 값·단위·카테고리를 추정한 초안을 생성하여 UI에 회색 상태로 표시할 수 있습니다.
 - **Tkinter UI**: 좌측 지표 목록, 중앙 페이지 이미지(canvas)에서 박스 그리기, 우측 후보 및 값/단위 입력 패널로 구성됩니다. 키보드 단축키(화살표, `b`, `c`, `del`)를 지원하며 모든 변경 사항은 자동 저장됩니다.
 - **JSON 저장소와 백업**: 지표별 JSON 파일로 주석을 저장하고, 변경 시 이전 버전을 타임스탬프 백업으로 남깁니다.
 - **CSV/JSON 내보내기**: RegCom에서 요구하는 `tsmc_5.csv`, `full_report_agg.csv`, `single_page_pairs.csv`, `metadata.json` 형식을 생성합니다.
@@ -25,7 +26,7 @@
    - `project`: 결과물이 생성될 작업 폴더 이름
 4. 주석 완료 후 내보내기
    ```bash
-   python export.py --project myproj --pdf ./pdfs/report.pdf --uid annotatorA --company tsmc
+   python -m annotation.export --project myproj --pdf ./pdfs/report.pdf --uid annotatorA --company tsmc
    ```
 
 ## 프로젝트 구조
