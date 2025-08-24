@@ -45,5 +45,27 @@ pytest
 ```
 테스트는 휴리스틱 후보 발굴, 저장소 동작, 내보내기 형식을 검증하여 Auto-Candidate Mining 및 데이터 관리 기능이 올바르게 작동함을 확인합니다.
 
-## 라이선스
-프로젝트는 MIT 라이선스를 따릅니다.
+## 내보내기 데이터 형식
+
+도구는 다음과 같은 CSV/JSON 파일을 생성합니다:
+
+- `tsmc_5.csv`: 보고서별 세부 주석 (골드 주석 데이터)
+- `full_report_agg.csv`: Metric별 페이지/단위/카테고리 요약
+- `single_page_pairs.csv`: (metric, page) 쌍별 존재 여부 및 적합성 라벨
+- `metadata.json`: 보고서/회사/언어/연도/버전 등 메타데이터
+
+### 컬럼 설명
+
+| 컬럼 | 설명 | 예시 |
+|------|------|------|
+| **uid** | 주석자 ID | `annotatorA` |
+| **cid** | 회사 ID | `tsmc` |
+| **topic** | SASB Topic 코드 (정수 매핑) | `110` |
+| **sid** | Metric 하위항목 식별자 (내부 정수) | `11001` |
+| **page** | 발견된 페이지 번호 | `97` |
+| **value** | Metric 값 (정량인 경우) | `2.019` |
+| **unit** | 값의 단위 | `百萬噸CO2e` |
+| **complete** | 해당 항목 주석이 완료되었는지 여부 | `true` |
+| **x1,y1,x2,y2** | 근거 영역의 페이지 내 좌표 | `120,410,520,450` |
+
+> 참고: 한 metric이 여러 페이지/좌표에 걸쳐 있으면 같은 `sid`와 `page`로 여러 행이 생성됩니다. Discussion(서술형) metric은 `value`/`unit`이 비어 있거나 `unit=text/figure`로 기록될 수 있습니다.
