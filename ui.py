@@ -7,7 +7,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 from candidate_miner import CandidateMiner
-from store import AnnotationStore
+from annotation.store import AnnotationStore
 
 
 class AnnotationApp:

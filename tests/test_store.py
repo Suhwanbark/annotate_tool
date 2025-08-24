@@ -1,4 +1,4 @@
-from store import AnnotationStore
+from annotation.store import AnnotationStore
 
 
 def test_add_and_load(tmp_path):
