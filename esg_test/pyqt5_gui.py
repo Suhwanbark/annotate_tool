@@ -129,7 +129,7 @@ class ESGAnnotationApp(QMainWindow):
     def load_metrics_from_json(self):
         """JSON 파일에서 메트릭 로드"""
         try:
-            metric_file = os.path.join("../myproj", "metric_sid_map.json")
+            metric_file = os.path.join("../new_project", "metric_sid_map.json")
             with open(metric_file, 'r', encoding='utf-8') as f:
                 metrics = json.load(f)
 
@@ -200,7 +200,7 @@ class ESGAnnotationApp(QMainWindow):
     def load_metric_page_mapping(self):
         """metric_page_mapping.json 로드"""
         try:
-            mapping_file = os.path.join("../myproj", "metric_page_mapping.json")
+            mapping_file = os.path.join("../new_project", "metric_page_mapping.json")
             if os.path.exists(mapping_file):
                 with open(mapping_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
@@ -240,7 +240,7 @@ class ESGAnnotationApp(QMainWindow):
         else:
             # 관련 메트릭이 있는 경우
             # metric_sid_map.json에서 topic과 sid 가져오기
-            metric_file = os.path.join("../myproj", "metric_sid_map.json")
+            metric_file = os.path.join("../new_project", "metric_sid_map.json")
             try:
                 with open(metric_file, 'r', encoding='utf-8') as f:
                     metrics = json.load(f)
@@ -571,7 +571,7 @@ class ESGAnnotationApp(QMainWindow):
 
         try:
             # metric_sid_map.json에서 unit과 category 가져오기
-            metric_file = os.path.join("../myproj", "metric_sid_map.json")
+            metric_file = os.path.join("../new_project", "metric_sid_map.json")
             with open(metric_file, 'r', encoding='utf-8') as f:
                 metrics = json.load(f)
 
@@ -632,7 +632,7 @@ class ESGAnnotationApp(QMainWindow):
         # 실제 파일로 저장
         try:
             # annotations 디렉토리 생성
-            ann_dir = os.path.join("../myproj", "annotations")
+            ann_dir = os.path.join("../new_project", "annotations")
             os.makedirs(ann_dir, exist_ok=True)
             
             # 메트릭 파일 경로
@@ -692,16 +692,16 @@ class ESGAnnotationApp(QMainWindow):
         """CSV 파일로 내보내기"""
         try:
             # exports 디렉토리 생성
-            export_dir = os.path.join("../myproj", "exports")
+            export_dir = os.path.join("../new_project", "exports")
             os.makedirs(export_dir, exist_ok=True)
-            
+
             # 메트릭 매핑 로드
-            metric_map_file = os.path.join("../myproj", "metric_sid_map.json")
+            metric_map_file = os.path.join("../new_project", "metric_sid_map.json")
             with open(metric_map_file, 'r', encoding='utf-8') as f:
                 metric_map = json.load(f)
-            
+
             # annotations 디렉토리에서 모든 주석 파일 로드
-            ann_dir = os.path.join("../myproj", "annotations")
+            ann_dir = os.path.join("../new_project", "annotations")
             all_annotations = []
             
             if os.path.exists(ann_dir):
@@ -839,7 +839,7 @@ class ESGAnnotationApp(QMainWindow):
         
     def count_total_pages(self):
         """총 페이지 수 계산"""
-        page_dir = "../myproj/pages"
+        page_dir = "../new_project/pages"
         if os.path.exists(page_dir):
             png_files = [f for f in os.listdir(page_dir) if f.endswith('.png')]
             return len(png_files)
@@ -847,7 +847,7 @@ class ESGAnnotationApp(QMainWindow):
     
     def load_current_page(self):
         """현재 페이지 로드"""
-        image_path = f"../myproj/pages/{self.current_page}.png"
+        image_path = f"../new_project/pages/{self.current_page}.png"
         if os.path.exists(image_path):
             try:
                 # PIL로 이미지 로드 - 고해상도 유지
