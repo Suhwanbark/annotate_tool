@@ -29,5 +29,5 @@ def heuristic_candidates(metric_id: str, page_meta: Dict) -> List[Dict]:
                 "category": "quantitative",
                 "bbox": None,
             }
-        )
+        
     return results

@@ -1,71 +1,381 @@
-# 경량 ESG 주석 도구
+# ESG Report Annotation Tool
 
-이 프로젝트는 한 명의 주석자(annotator)가 로컬 환경에서 ESG 보고서를 효율적으로 분석할 수 있도록 고안된 순수 파이썬 기반 데스크톱 애플리케이션입니다. 별도의 서버나 복잡한 보안 구성이 필요 없으며, PDF 전처리부터 후보 발굴, 수동 검증, CSV/JSON 내보내기까지 전체 작업 흐름을 지원합니다.
+**SASB Hardware 메트릭 기반 ESG 보고서 주석 도구**
 
-## 주요 특징
-- **PDF 전처리**: PyMuPDF로 페이지별 PNG와 텍스트를 생성하며, 필요 시 Tesseract OCR을 통해 이미지/표의 텍스트도 추출합니다.
-- **자동 후보 발굴(Auto-Candidate Mining)**:
-  - 정규식 기반 휴리스틱으로 단위(`%`, `tCO2e`, `GJ`, `m³` 등)와 숫자를 탐지하고, 지표별 동의어를 검색하여 관련 후보를 수집합니다.
-  - `config/config.json`에 `llm_base_url`, `llm_model`, `api_key`를 설정하면 `/responses` 엔드포인트를 호출해 LLM 후보를 가져옵니다. 요청 본문은 `candidate_miner/prompts.py`에 정의된 `CandidateList` JSON Schema를 따릅니다.
-- **초안 주석 제안**: LLM이 값·단위·카테고리를 추정한 초안을 생성하여 UI에 회색 상태로 표시할 수 있습니다.
-- **Tkinter UI**: 좌측 지표 목록, 중앙 페이지 이미지(canvas)에서 박스 그리기, 우측 후보 및 값/단위 입력 패널로 구성됩니다. 키보드 단축키(화살표, `b`, `c`, `del`)를 지원하며 모든 변경 사항은 자동 저장됩니다.
-- **JSON 저장소와 백업**: 지표별 JSON 파일로 주석을 저장하고, 변경 시 이전 버전을 타임스탬프 백업으로 남깁니다.
-- **CSV/JSON 내보내기**: RegCom에서 요구하는 `tsmc_5.csv`, `full_report_agg.csv`, `single_page_pairs.csv`, `metadata.json` 형식을 생성합니다.
+이 도구는 ESG(Environmental, Social, Governance) 보고서에서 SASB Hardware 메트릭 데이터를 효율적으로 추출하고 주석을 다는 데스크톱 애플리케이션입니다. 순수 Python으로 작성되었으며, 서버나 복잡한 설정 없이 로컬에서 안전하게 사용할 수 있습니다.
 
-## 설치 및 실행
-1. 의존성 설치
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. 주석할 PDF가 들어 있는 폴더를 준비합니다.
-3. 도구 실행
-   ```bash
-   python main.py --data_dir ./pdfs --project myproj
-   ```
-   - `data_dir`: 원본 PDF들이 들어 있는 디렉터리
-   - `project`: 결과물이 생성될 작업 폴더 이름
-4. 주석 완료 후 내보내기
-   ```bash
-   python -m annotation.export --project myproj --pdf ./pdfs/report.pdf --uid annotatorA --company tsmc
-   ```
+## 📋 목차
 
-## 프로젝트 구조
-```
-myproj/
-  pages/         # 페이지별 PNG와 metadata.json
-  annotations/   # 자동 저장된 JSON 주석 데이터
-  exports/       # CSV/JSON 내보내기 결과
-  metric_sid_map.json
-```
+- [주요 기능](#주요-기능)
+- [설치 방법](#설치-방법)
+- [빠른 시작](#빠른-시작)
+- [상세 사용 가이드](#상세-사용-가이드)
+- [프로젝트 구조](#프로젝트-구조)
+- [메트릭 정보](#메트릭-정보)
+- [내보내기 형식](#내보내기-형식)
+- [개발자 가이드](#개발자-가이드)
 
-## 테스트 실행
-본 저장소는 기본 기능 검증을 위한 `pytest` 기반 단위 테스트를 포함합니다.
+---
+
+## 🎯 주요 기능
+
+### 1. **PDF 전처리 및 시각화**
+- PyMuPDF를 사용한 고품질 페이지별 PNG 변환
+- 옵션: Tesseract OCR을 통한 이미지/표 텍스트 추출
+- 고해상도 이미지 뷰어로 선명한 문서 확인
+
+### 2. **지능형 후보 마이닝**
+- **휴리스틱 방식**: 키워드 기반 페이지 필터링 (영어 + 한국어 365개 키워드)
+- **LLM 방식** (선택): API 호출을 통한 정밀 후보 추출
+- 페이지별 관련 메트릭 자동 추천
+
+### 3. **직관적인 GUI (PyQt5)**
+- **3패널 구조**: 메트릭 목록 | 페이지 뷰어 | 주석 입력
+- 마우스 드래그로 bounding box 그리기
+- 자동 완성: 메트릭 선택 시 category와 unit 자동 입력
+- 메트릭별 상세 정보 표시 (Topic, SID, Category, Unit)
+
+### 4. **데이터 관리**
+- 메트릭별 JSON 자동 저장 (타임스탬프 백업)
+- CSV/JSON 다중 형식 내보내기
+- RegCom 요구사항 준수 포맷
+
+---
+
+## 🚀 설치 방법
+
+### 필수 요구사항
+- Python 3.9 이상
+- macOS, Windows, Linux 지원
+
+### 1. 레포지토리 클론
 ```bash
-pytest
+git clone https://github.com/your-username/esg-annotation-tool.git
+cd esg-annotation-tool
 ```
-테스트는 휴리스틱 후보 발굴, 저장소 동작, 내보내기 형식을 검증하여 Auto-Candidate Mining 및 데이터 관리 기능이 올바르게 작동함을 확인합니다.
 
-## 내보내기 데이터 형식
+### 2. 의존성 설치
+```bash
+pip install -r requirements.txt
+```
 
-도구는 다음과 같은 CSV/JSON 파일을 생성합니다:
+**필수 패키지:**
+- `PyMuPDF` - PDF 처리
+- `Pillow` - 이미지 처리
+- `PyQt5` - GUI 프레임워크
+- `pandas`, `matplotlib`, `seaborn` - 데이터 분석
+- `jupyter`, `ipykernel` - Jupyter 노트북
 
-- `tsmc_5.csv`: 보고서별 세부 주석 (골드 주석 데이터)
-- `full_report_agg.csv`: Metric별 페이지/단위/카테고리 요약
-- `single_page_pairs.csv`: (metric, page) 쌍별 존재 여부 및 적합성 라벨
-- `metadata.json`: 보고서/회사/언어/연도/버전 등 메타데이터
+**선택 패키지:**
+- `pytesseract` - OCR (이미지/표 텍스트 추출)
+- `requests` - LLM API 호출
 
-### 컬럼 설명
+### 3. OCR 설치 (선택)
+```bash
+# macOS
+brew install tesseract tesseract-lang
 
-| 컬럼 | 설명 | 예시 |
-|------|------|------|
-| **uid** | 주석자 ID | `annotatorA` |
-| **cid** | 회사 ID | `tsmc` |
-| **topic** | SASB Topic 코드 (정수 매핑) | `110` |
-| **sid** | Metric 하위항목 식별자 (내부 정수) | `11001` |
-| **page** | 발견된 페이지 번호 | `97` |
-| **value** | Metric 값 (정량인 경우) | `2.019` |
-| **unit** | 값의 단위 | `百萬噸CO2e` |
-| **complete** | 해당 항목 주석이 완료되었는지 여부 | `true` |
-| **x1,y1,x2,y2** | 근거 영역의 페이지 내 좌표 | `120,410,520,450` |
+# Ubuntu/Debian
+sudo apt-get install tesseract-ocr tesseract-ocr-kor
 
-> 참고: 한 metric이 여러 페이지/좌표에 걸쳐 있으면 같은 `sid`와 `page`로 여러 행이 생성됩니다. Discussion(서술형) metric은 `value`/`unit`이 비어 있거나 `unit=text/figure`로 기록될 수 있습니다.
+# Windows
+# https://github.com/UB-Mannheim/tesseract/wiki 에서 설치
+```
+
+---
+
+## ⚡ 빠른 시작
+
+### 1단계: PDF 전처리
+```bash
+python main.py --data_dir ./pdfs --project myproj
+```
+
+### 2단계: 후보 마이닝
+```bash
+jupyter notebook candidate_miner/heuristic_analysis.ipynb
+# 노트북에서 모든 셀 실행
+```
+
+### 3단계: GUI 실행
+```bash
+cd esg_test
+python pyqt5_gui.py
+```
+
+### 4단계: 데이터 내보내기
+GUI에서 **📊 CSV 내보내기** 버튼 클릭
+
+---
+
+## 📖 상세 사용 가이드
+
+### 단계 1: PDF 전처리
+
+PDF 파일을 페이지별 PNG 이미지로 변환합니다.
+
+```bash
+# 기본 사용 (텍스트만 추출)
+python main.py --data_dir ./pdfs --project myproj
+
+# OCR 사용 (이미지/표 텍스트 추출)
+python main.py --data_dir ./pdfs --project myproj --ocr
+```
+
+**출력:**
+- `myproj/pages/*.png` - 페이지별 이미지
+- `myproj/pages/metadata.json` - 페이지 메타데이터
+
+### 단계 2: 후보 마이닝
+
+키워드 기반으로 각 메트릭과 관련된 페이지를 찾습니다.
+
+```bash
+jupyter notebook candidate_miner/heuristic_analysis.ipynb
+```
+
+**노트북에서:**
+1. 프로젝트 경로 설정: `project_dir = "../myproj"`
+2. 모든 셀 실행 (`Shift + Enter`)
+3. `metric_page_mapping.json` 생성 확인
+
+**출력:**
+- `myproj/metric_page_mapping.json` - 메트릭별 관련 페이지 목록
+
+### 단계 3: GUI 주석 작업
+
+```bash
+cd esg_test
+python pyqt5_gui.py
+```
+
+#### GUI 사용법
+
+**왼쪽 패널 - 메트릭 목록**
+- 메트릭 클릭하여 선택
+- 표시 정보: Topic, SID, Category, Unit
+- 선택된 메트릭이 녹색으로 하이라이트
+
+**중앙 패널 - 페이지 뷰어**
+- ◀/▶ 버튼으로 페이지 이동
+- 노란색 박스: 현재 페이지의 관련 메트릭 자동 추천 (스크롤 가능)
+- 마우스 드래그로 데이터 영역에 bounding box 그리기
+
+**오른쪽 패널 - 주석 입력**
+1. 후보 목록에서 항목 선택 → Unit/Category 자동 입력
+2. **값**: 추출한 데이터 값 입력
+3. **단위**: 자동 입력 (수정 가능)
+4. 체크박스: 완료, 카테고리 OK, 단위 OK
+5. **💾 주석 저장** 버튼 클릭
+
+**자동 저장:**
+- `myproj/annotations/{metric_id}.json`
+- 타임스탬프 백업 (`.bak`)
+
+### 단계 4: 데이터 내보내기
+
+**GUI에서:**
+- **📊 CSV 내보내기** 버튼 클릭
+
+**CLI에서:**
+```bash
+python -m annotation.export \
+  --project myproj \
+  --pdf ./pdfs/samsung_2024.pdf \
+  --uid annotatorA \
+  --company samsung
+```
+
+**출력 (`myproj/exports/`):**
+- `tsmc_5.csv` - 메인 데이터
+- `full_report_agg.csv` - 메트릭 요약
+- `single_page_pairs.csv` - 페이지별 상태
+- `metadata.json` - 메타데이터
+
+---
+
+## 📁 프로젝트 구조
+
+```
+esg-annotation-tool/
+├── README.md                   # 📖 이 문서
+├── requirements.txt            # 의존성 목록
+├── CLAUDE.md                   # Claude Code 가이드
+├── .gitignore                  # Git 제외 파일
+│
+├── main.py                     # PDF 전처리 진입점
+├── pdf_loader.py               # PDF → PNG 변환
+├── ui.py                       # Tkinter UI (legacy)
+├── utils.py                    # 유틸리티 함수
+│
+├── esg_test/
+│   └── pyqt5_gui.py           # ⭐ PyQt5 메인 GUI
+│
+├── annotation/
+│   ├── store.py               # JSON 저장
+│   └── export.py              # CSV/JSON 내보내기
+│
+├── candidate_miner/
+│   ├── heuristics.py          # 휴리스틱 마이닝
+│   ├── llm_miner.py           # LLM 마이닝 (선택)
+│   ├── prompts.py             # LLM 프롬프트
+│   └── heuristic_analysis.ipynb  # ⭐ 페이지 필터링 노트북
+│
+├── myproj/                    # 작업 디렉토리 (예시)
+│   ├── metric_sid_map.json    # SASB 메트릭 정의
+│   ├── metric_keywords.py     # 키워드 매핑 (365개)
+│   ├── metric_page_mapping.json  # 메트릭-페이지 매핑
+│   ├── pages/                 # PDF 페이지 PNG
+│   ├── annotations/           # 주석 JSON
+│   └── exports/               # CSV 결과
+│
+├── config/
+│   └── config.example.json    # LLM API 설정 템플릿
+│
+├── tests/                     # pytest 테스트
+│   ├── test_candidate_miner.py
+│   ├── test_export.py
+│   ├── test_store.py
+│   └── test_utils.py
+│
+└── pdfs/                      # 입력 PDF 디렉토리
+```
+
+---
+
+## 📊 메트릭 정보
+
+### SASB Hardware 메트릭 (9개)
+
+| 메트릭 ID | Topic | Category | Unit |
+|----------|-------|----------|------|
+| TC-HW-230a.1 | Product Security | Discussion and Analysis | n/a |
+| TC-HW-330a.1 | Employee Diversity & Inclusion | Quantitative | Percentage (%) |
+| TC-HW-410a.1 | Product Lifecycle Management | Quantitative | Percentage (%) |
+| TC-HW-410a.2 | Product Lifecycle Management | Quantitative | Percentage (%) |
+| TC-HW-410a.3 | Product Lifecycle Management | Quantitative | Percentage (%) |
+| TC-HW-410a.4 | Product Lifecycle Management | Quantitative | Metric tonnes (t), % |
+| TC-HW-430a.1 | Supply Chain Management | Quantitative | Percentage (%) |
+| TC-HW-430a.2 | Supply Chain Management | Quantitative | Rate |
+| TC-HW-440a.1 | Materials Sourcing | Discussion and Analysis | n/a |
+
+### 키워드 매핑
+- **총 365개** (영어 + 한국어)
+- 파일: `myproj/metric_keywords.py`
+- 예시:
+  - TC-HW-230a.1: "security", "cyber", "보안", "데이터 보안"
+  - TC-HW-410a.4: "e-waste", "recycling", "전자폐기물", "재활용"
+
+---
+
+## 📤 내보내기 형식
+
+### 1. tsmc_5.csv (메인 데이터)
+```csv
+uid,cid,topic,sid,page,value,unit,complete,x1,y1,x2,y2
+annotatorA,samsung,Product Security,Description of...,1,Yes,n/a,true,100,200,300,400
+```
+
+### 2. full_report_agg.csv (메트릭 요약)
+```csv
+metric,pages,cat_ok,unit_ok
+TC-HW-230a.1,1 2 3,true,true
+```
+
+### 3. single_page_pairs.csv (페이지 상태)
+```csv
+metric,page,present,cat_ok,unit_ok
+TC-HW-230a.1,1,true,true,true
+```
+
+### 4. metadata.json
+```json
+{
+  "company": "samsung",
+  "year": 2024,
+  "lang": "ko",
+  "sasb_version": "1.0",
+  "export_time": 1697200000.0,
+  "total_annotations": 15
+}
+```
+
+---
+
+## 🛠️ 개발자 가이드
+
+### 테스트 실행
+
+```bash
+# 전체 테스트
+pytest
+
+# 특정 테스트
+pytest tests/test_candidate_miner.py
+
+# 문법 체크
+python -m py_compile $(git ls-files '*.py')
+```
+
+### LLM 마이닝 (선택)
+
+1. config 파일 생성:
+```bash
+cp config/config.example.json config/config.json
+```
+
+2. API 정보 입력:
+```json
+{
+  "llm_base_url": "https://api.openai.com/v1",
+  "llm_model": "gpt-4",
+  "api_key": "sk-..."
+}
+```
+
+3. 사용:
+```python
+from candidate_miner.llm_miner import mine_with_llm
+candidates = mine_with_llm(page_text, metric_id, config)
+```
+
+### 새 메트릭 추가
+
+1. `myproj/metric_sid_map.json`에 정의 추가
+2. `myproj/metric_keywords.py`에 키워드 추가
+3. `heuristic_analysis.ipynb` 재실행
+
+---
+
+## 🤝 기여하기
+
+1. Fork this repository
+2. Create feature branch: `git checkout -b feature/name`
+3. Commit changes: `git commit -m 'Add feature'`
+4. Push to branch: `git push origin feature/name`
+5. Open Pull Request
+
+**가이드라인:**
+- pytest 테스트 추가
+- 문법 체크 통과
+- CLAUDE.md 참고
+
+---
+
+## 📝 라이선스
+
+MIT License - 자유롭게 사용, 수정, 배포 가능
+
+---
+
+## 📧 문의
+
+- Issues: GitHub Issues
+- Docs: CLAUDE.md
+
+---
+
+## 🙏 감사
+
+- SASB Standards Board
+- PyMuPDF, PyQt5, Tesseract 커뮤니티

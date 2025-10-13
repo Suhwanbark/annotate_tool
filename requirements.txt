@@ -1,6 +1,22 @@
-PyMuPDF
-Pillow
-pytesseract
-requests
-pytest
+# Core dependencies
+PyMuPDF>=1.23.0
+Pillow>=10.0.0
+PyQt5>=5.15.0
 
+# Data analysis
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Jupyter notebook
+jupyter>=1.0.0
+ipykernel>=6.25.0
+
+# Optional: OCR support
+# pytesseract>=0.3.10
+
+# Optional: LLM API calls
+# requests>=2.31.0
+
+# Testing
+pytest>=7.4.0

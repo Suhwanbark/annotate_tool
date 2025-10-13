@@ -19,17 +19,23 @@ class AnnotationApp:
 
         self.root = tk.Tk()
         self.root.title("ESG Annotation Tool")
+        self.root.geometry("1200x800")
 
-        # Metric list on the left
-        self.metric_list = tk.Listbox(self.root, exportselection=False, width=25)
-        self.metric_list.pack(side=tk.LEFT, fill=tk.Y)
+        # Left frame for metrics
+        left_frame = tk.Frame(self.root, width=200, bg="white")
+        left_frame.pack(side=tk.LEFT, fill=tk.Y, padx=5, pady=5)
+        left_frame.pack_propagate(False)
+        
+        tk.Label(left_frame, text="메트릭 목록", bg="white").pack(pady=5)
+        self.metric_list = tk.Listbox(left_frame, exportselection=False)
+        self.metric_list.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
         for metric_id in self._all_metrics():
             self.metric_list.insert(tk.END, metric_id)
         self.metric_list.bind("<<ListboxSelect>>", self.on_metric_select)
 
         # Canvas in the center
-        self.canvas = tk.Canvas(self.root, width=800, height=600, bg="grey")
-        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.canvas = tk.Canvas(self.root, width=800, height=600, bg="lightgray")
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=5)
         self.canvas.bind("<ButtonPress-1>", self.on_canvas_press)
         self.canvas.bind("<B1-Motion>", self.on_canvas_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_canvas_release)
@@ -37,8 +43,11 @@ class AnnotationApp:
         self.current_rect = None
 
         # Right panel for evidence
-        self.panel = tk.Frame(self.root)
-        self.panel.pack(side=tk.RIGHT, fill=tk.Y)
+        self.panel = tk.Frame(self.root, width=250, bg="lightblue")
+        self.panel.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5)
+        self.panel.pack_propagate(False)
+        
+        tk.Label(self.panel, text="주석 패널", bg="lightblue").pack(pady=5)
 
         self.candidate_list = tk.Listbox(self.panel, height=8)
         self.candidate_list.pack(fill=tk.X)
@@ -68,7 +77,17 @@ class AnnotationApp:
         self.page_label.pack(side=tk.LEFT)
         self.page_var = tk.IntVar(value=1)
 
-        self.show_page(1)
+        # Add test items for debugging
+        if not self._all_metrics():
+            self.metric_list.insert(tk.END, "TEST-METRIC-1")
+            self.metric_list.insert(tk.END, "TEST-METRIC-2") 
+            
+        # Draw test rectangle on canvas
+        self.canvas.create_rectangle(50, 50, 200, 100, fill="red", outline="black")
+        self.canvas.create_text(125, 75, text="TEST", fill="white")
+        
+        # Initialize after UI is ready
+        self.root.after(100, lambda: self.show_page(1))
 
     def _all_metrics(self):
         path = os.path.join(self.project_dir, "metric_sid_map.json")
@@ -97,10 +116,25 @@ class AnnotationApp:
         self.page_var.set(number)
         self.page_label.config(text=str(number))
         meta = self.pages_meta[number - 1]
-        img = Image.open(meta["image_path"])
-        self.photo = ImageTk.PhotoImage(img)
-        self.canvas.delete("all")
-        self.canvas.create_image(0, 0, image=self.photo, anchor="nw")
+        print(f"Loading image: {meta['image_path']}")
+        try:
+            img = Image.open(meta["image_path"])
+            # Use fixed size instead of winfo methods
+            max_width, max_height = 780, 580
+            img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
+            self.photo = ImageTk.PhotoImage(img)
+            self.canvas.delete("all")
+            # Add white background
+            self.canvas.create_rectangle(0, 0, 800, 600, fill="white", outline="")
+            # Center the image
+            img_width, img_height = img.size
+            x = (800 - img_width) // 2
+            y = (600 - img_height) // 2
+            self.canvas.create_image(x, y, image=self.photo, anchor="nw")
+            print(f"Image displayed at ({x}, {y}), size: {img.size}")
+            self.canvas.update()
+        except Exception as e:
+            print(f"Error loading image: {e}")
         self.current_boxes = []
 
     def on_metric_select(self, event):

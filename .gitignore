@@ -1,2 +1,46 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+myproj/pages/*.png
+myproj/annotations/*.json
+myproj/annotations/*.bak
+myproj/exports/
+temp_image_*.png
+*.bak
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Config with secrets
+config/config.json
+
+# Test files
+tests/__pycache__/
+.pytest_cache/
