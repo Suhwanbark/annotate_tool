@@ -1,0 +1,74 @@
+{
+  "TC-SC-110a.1": {
+    "topic": "Greenhouse Gas Emissions",
+    "sid": "(1) Gross global Scope 1 emissions and (2) amount of total emissions from perfluorinated compounds",
+    "unit": "Metric tonnes (t) CO₂-e",
+    "category": "Quantitative"
+  },
+  "TC-SC-110a.2": {
+    "topic": "Greenhouse Gas Emissions",
+    "sid": "Discussion of long- and short-term strategy or plan to manage Scope 1 emissions, emissions reduction targets, and an analysis of performance against those targets",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  },
+  "TC-SC-130a.1": {
+    "topic": "Energy Management in Manufacturing",
+    "sid": "(1) Total energy consumed, (2) percentage grid electricity and (3) percentage renewable",
+    "unit": "Gigajoules (GJ), Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-SC-140a.1": {
+    "topic": "Water Management",
+    "sid": "(1) Total water withdrawn, (2) total water consumed; percentage of each in regions with High or Extremely High Baseline Water Stress",
+    "unit": "Thousand cubic metres (m³), Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-SC-150a.1": {
+    "topic": "Waste Management",
+    "sid": "(1) Amount of hazardous waste from manufacturing, (2) percentage recycled",
+    "unit": "Metric tonnes (t), Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-SC-320a.1": {
+    "topic": "Workforce Health & Safety",
+    "sid": "Description of efforts to assess, monitor, and reduce exposure of workforce to human health hazards",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  },
+  "TC-SC-320a.2": {
+    "topic": "Workforce Health & Safety",
+    "sid": "Total amount of monetary losses as a result of legal proceedings associated with employee health and safety violations",
+    "unit": "Presentation currency",
+    "category": "Quantitative"
+  },
+  "TC-SC-330a.1": {
+    "topic": "Recruiting & Managing a Global & Skilled Workforce",
+    "sid": "Percentage of employees that require a work visa",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-SC-410a.1": {
+    "topic": "Product Lifecycle Management",
+    "sid": "Percentage of products by revenue that contain IEC 62474 declarable substances",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-SC-410a.2": {
+    "topic": "Product Lifecycle Management",
+    "sid": "Processor energy efficiency at a system-level for: (1) servers, (2) desktops and (3) laptops",
+    "unit": "Various, by product category",
+    "category": "Quantitative"
+  },
+  "TC-SC-440a.1": {
+    "topic": "Materials Sourcing",
+    "sid": "Description of the management of risks associated with the use of critical materials",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  },
+  "TC-SC-520a.1": {
+    "topic": "Intellectual Property Protection & Competitive Behaviour",
+    "sid": "Total amount of monetary losses as a result of legal proceedings associated with anti-competitive behaviour regulations",
+    "unit": "Presentation currency",
+    "category": "Quantitative"
+  }
+}

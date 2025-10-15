@@ -7,8 +7,9 @@ import time
 import json
 import shutil
 import csv
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QHBoxLayout, 
-                             QVBoxLayout, QListWidget, QLabel, QLineEdit, 
+import argparse
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QHBoxLayout,
+                             QVBoxLayout, QListWidget, QLabel, QLineEdit,
                              QPushButton, QCheckBox, QScrollArea, QSplitter,
                              QTextEdit, QFrame, QListWidgetItem)
 from PyQt5.QtCore import Qt, QRect, QPoint
@@ -84,9 +85,10 @@ class DraggableImageLabel(QLabel):
         return result
 
 class ESGAnnotationApp(QMainWindow):
-    def __init__(self):
+    def __init__(self, project_dir="../projects/sk_hynix_2024"):
         super().__init__()
-        self.setWindowTitle("ESG 주석 도구 (고해상도)")
+        self.project_dir = project_dir
+        self.setWindowTitle(f"ESG 주석 도구 - {os.path.basename(project_dir)}")
         self.setGeometry(100, 100, 1600, 1000)  # 윈도우 크기 확대
 
         # 메트릭 매핑 딕셔너리 (display_text → metric_id)
@@ -129,7 +131,7 @@ class ESGAnnotationApp(QMainWindow):
     def load_metrics_from_json(self):
         """JSON 파일에서 메트릭 로드"""
         try:
-            metric_file = os.path.join("../new_project", "metric_sid_map.json")
+            metric_file = os.path.join(self.project_dir, "metric_sid_map.json")
             with open(metric_file, 'r', encoding='utf-8') as f:
                 metrics = json.load(f)
 
@@ -200,7 +202,7 @@ class ESGAnnotationApp(QMainWindow):
     def load_metric_page_mapping(self):
         """metric_page_mapping.json 로드"""
         try:
-            mapping_file = os.path.join("../new_project", "metric_page_mapping.json")
+            mapping_file = os.path.join(self.project_dir, "metric_page_mapping.json")
             if os.path.exists(mapping_file):
                 with open(mapping_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
@@ -240,7 +242,7 @@ class ESGAnnotationApp(QMainWindow):
         else:
             # 관련 메트릭이 있는 경우
             # metric_sid_map.json에서 topic과 sid 가져오기
-            metric_file = os.path.join("../new_project", "metric_sid_map.json")
+            metric_file = os.path.join(self.project_dir, "metric_sid_map.json")
             try:
                 with open(metric_file, 'r', encoding='utf-8') as f:
                     metrics = json.load(f)
@@ -481,13 +483,11 @@ class ESGAnnotationApp(QMainWindow):
         layout.addWidget(self.unit_input)
         
         # 체크박스들
-        self.complete_cb = QCheckBox("완료")
         self.category_cb = QCheckBox("카테고리 OK")
-        self.unit_cb = QCheckBox("단위 OK")
-        
-        layout.addWidget(self.complete_cb)
+        self.ambiguous_cb = QCheckBox("⚠️ 애매함")
+
         layout.addWidget(self.category_cb)
-        layout.addWidget(self.unit_cb)
+        layout.addWidget(self.ambiguous_cb)
         
         # 버튼들
         self.save_btn = QPushButton("💾 주석 저장")
@@ -571,7 +571,7 @@ class ESGAnnotationApp(QMainWindow):
 
         try:
             # metric_sid_map.json에서 unit과 category 가져오기
-            metric_file = os.path.join("../new_project", "metric_sid_map.json")
+            metric_file = os.path.join(self.project_dir, "metric_sid_map.json")
             with open(metric_file, 'r', encoding='utf-8') as f:
                 metrics = json.load(f)
 
@@ -622,17 +622,16 @@ class ESGAnnotationApp(QMainWindow):
             'value': value,
             'unit': unit,
             'category': 'quantitative',
-            'complete': self.complete_cb.isChecked(),
             'bboxes': boxes,
             'cat_ok': self.category_cb.isChecked(),
-            'unit_ok': self.unit_cb.isChecked(),
+            'ambiguous': self.ambiguous_cb.isChecked(),
             'timestamp': time.time()
         }
         
         # 실제 파일로 저장
         try:
             # annotations 디렉토리 생성
-            ann_dir = os.path.join("../new_project", "annotations")
+            ann_dir = os.path.join(self.project_dir, "annotations")
             os.makedirs(ann_dir, exist_ok=True)
             
             # 메트릭 파일 경로
@@ -672,9 +671,8 @@ class ESGAnnotationApp(QMainWindow):
             # 성공 시 입력 필드 초기화
             self.value_input.clear()
             self.unit_input.clear()
-            self.complete_cb.setChecked(False)
             self.category_cb.setChecked(False)
-            self.unit_cb.setChecked(False)
+            self.ambiguous_cb.setChecked(False)
             
         except Exception as e:
             print(f"❌ 저장 실패: {e}")
@@ -692,16 +690,16 @@ class ESGAnnotationApp(QMainWindow):
         """CSV 파일로 내보내기"""
         try:
             # exports 디렉토리 생성
-            export_dir = os.path.join("../new_project", "exports")
+            export_dir = os.path.join(self.project_dir, "exports")
             os.makedirs(export_dir, exist_ok=True)
 
             # 메트릭 매핑 로드
-            metric_map_file = os.path.join("../new_project", "metric_sid_map.json")
+            metric_map_file = os.path.join(self.project_dir, "metric_sid_map.json")
             with open(metric_map_file, 'r', encoding='utf-8') as f:
                 metric_map = json.load(f)
 
             # annotations 디렉토리에서 모든 주석 파일 로드
-            ann_dir = os.path.join("../new_project", "annotations")
+            ann_dir = os.path.join(self.project_dir, "annotations")
             all_annotations = []
             
             if os.path.exists(ann_dir):
@@ -720,7 +718,7 @@ class ESGAnnotationApp(QMainWindow):
             
             # 1. tsmc_5.csv - 메인 데이터 형식
             tsmc5_path = os.path.join(export_dir, "tsmc_5.csv")
-            headers = ["uid", "cid", "topic", "sid", "page", "value", "unit", "complete", "x1", "y1", "x2", "y2"]
+            headers = ["uid", "cid", "topic", "sid", "page", "value", "unit", "ambiguous", "x1", "y1", "x2", "y2"]
             
             with open(tsmc5_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
@@ -729,20 +727,20 @@ class ESGAnnotationApp(QMainWindow):
                 for data in all_annotations:
                     metric_id = data["metric_id"]
                     metric_info = metric_map.get(metric_id, {})
-                    
+
                     for ann in data.get("annotations", []):
                         bboxes = ann.get("bboxes", [])
                         if not bboxes:
                             # 박스가 없는 경우 한 행 생성
                             row = [
                                 "annotator",  # uid
-                                "samsung",    # cid (회사명)
+                                os.path.basename(self.project_dir),  # cid (회사명)
                                 metric_info.get("topic", ""),
                                 metric_info.get("sid", ""),
                                 ann.get("page", ""),
                                 ann.get("value", ""),
                                 ann.get("unit", ""),
-                                str(ann.get("complete", False)).lower(),
+                                str(ann.get("ambiguous", False)).lower(),
                                 "", "", "", ""  # 빈 박스 좌표
                             ]
                             writer.writerow(row)
@@ -758,16 +756,16 @@ class ESGAnnotationApp(QMainWindow):
                                 else:
                                     # 알 수 없는 형태
                                     x1, y1, x2, y2 = "", "", "", ""
-                                
+
                                 row = [
                                     "annotator",  # uid
-                                    "samsung",    # cid (회사명)
+                                    os.path.basename(self.project_dir),  # cid (회사명)
                                     metric_info.get("topic", ""),
                                     metric_info.get("sid", ""),
                                     ann.get("page", ""),
                                     ann.get("value", ""),
                                     ann.get("unit", ""),
-                                    str(ann.get("complete", False)).lower(),
+                                    str(ann.get("ambiguous", False)).lower(),
                                     x1, y1, x2, y2
                                 ]
                                 writer.writerow(row)
@@ -776,20 +774,20 @@ class ESGAnnotationApp(QMainWindow):
             agg_path = os.path.join(export_dir, "full_report_agg.csv")
             with open(agg_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow(["metric", "pages", "cat_ok", "unit_ok"])
-                
+                writer.writerow(["metric", "pages", "cat_ok", "ambiguous"])
+
                 for data in all_annotations:
                     pages = sorted({ann["page"] for ann in data.get("annotations", [])})
                     cat_ok = all(ann.get("cat_ok", False) for ann in data.get("annotations", []))
-                    unit_ok = all(ann.get("unit_ok", False) for ann in data.get("annotations", []))
-                    writer.writerow([data["metric_id"], " ".join(map(str, pages)), cat_ok, unit_ok])
+                    ambiguous = any(ann.get("ambiguous", False) for ann in data.get("annotations", []))
+                    writer.writerow([data["metric_id"], " ".join(map(str, pages)), cat_ok, ambiguous])
             
             # 3. single_page_pairs.csv - 페이지별 상태
             pairs_path = os.path.join(export_dir, "single_page_pairs.csv")
             with open(pairs_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                writer.writerow(["metric", "page", "present", "cat_ok", "unit_ok"])
-                
+                writer.writerow(["metric", "page", "present", "cat_ok", "ambiguous"])
+
                 for data in all_annotations:
                     pages = sorted({ann["page"] for ann in data.get("annotations", [])})
                     for page in pages:
@@ -799,13 +797,13 @@ class ESGAnnotationApp(QMainWindow):
                             page,
                             bool(page_anns),
                             all(a.get("cat_ok", False) for a in page_anns),
-                            all(a.get("unit_ok", False) for a in page_anns)
+                            any(a.get("ambiguous", False) for a in page_anns)
                         ])
             
             # 4. metadata.json - 메타데이터
             meta_path = os.path.join(export_dir, "metadata.json")
             metadata = {
-                "company": "samsung",
+                "company": os.path.basename(self.project_dir),
                 "year": 2024,
                 "lang": "ko",
                 "sasb_version": "1.0",
@@ -839,7 +837,7 @@ class ESGAnnotationApp(QMainWindow):
         
     def count_total_pages(self):
         """총 페이지 수 계산"""
-        page_dir = "../new_project/pages"
+        page_dir = os.path.join(self.project_dir, "pages")
         if os.path.exists(page_dir):
             png_files = [f for f in os.listdir(page_dir) if f.endswith('.png')]
             return len(png_files)
@@ -847,7 +845,7 @@ class ESGAnnotationApp(QMainWindow):
     
     def load_current_page(self):
         """현재 페이지 로드"""
-        image_path = f"../new_project/pages/{self.current_page}.png"
+        image_path = os.path.join(self.project_dir, "pages", f"{self.current_page}.png")
         if os.path.exists(image_path):
             try:
                 # PIL로 이미지 로드 - 고해상도 유지
@@ -923,8 +921,15 @@ class ESGAnnotationApp(QMainWindow):
         self.load_current_page()
 
 def main():
+    # 명령줄 인자 파싱
+    parser = argparse.ArgumentParser(description='ESG 주석 도구')
+    parser.add_argument('--project', '-p',
+                        default='../projects/sk_hynix_2024',
+                        help='프로젝트 디렉토리 경로 (예: ../projects/sk_hynix_2024)')
+    args = parser.parse_args()
+
     app = QApplication(sys.argv)
-    
+
     # 한글 폰트 설정
     app.setStyleSheet("""
         QWidget {
@@ -932,11 +937,11 @@ def main():
             font-size: 12px;
         }
     """)
-    
-    window = ESGAnnotationApp()
+
+    window = ESGAnnotationApp(project_dir=args.project)
     window.show()
-    
-    print("PyQt5 애플리케이션 시작...")
+
+    print(f"PyQt5 애플리케이션 시작... (프로젝트: {args.project})")
     sys.exit(app.exec_())
 
 if __name__ == "__main__":

@@ -1,0 +1,56 @@
+{
+  "TC-HW-230a.1": {
+    "topic": "Product Security",
+    "sid": "Description of approach to identifying and addressing data security risks in products",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  },
+  "TC-HW-330a.1": {
+    "topic": "Employee Diversity & Inclusion",
+    "sid": "Percentage of (1) gender and (2) diversity group representation for (a) executive management, (b) non-executive management, (c) technical employees and (d) all other employees",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-HW-410a.1": {
+    "topic": "Product Lifecycle Management",
+    "sid": "Percentage of products by revenue that contain IEC 62474 declarable substances",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-HW-410a.2": {
+    "topic": "Product Lifecycle Management",
+    "sid": "Percentage of eligible products, by revenue, meeting the requirements for EPEAT registration or equivalent",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-HW-410a.3": {
+    "topic": "Product Lifecycle Management",
+    "sid": "Percentage of eligible products, by revenue, certified to an energy efficiency certification",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-HW-410a.4": {
+    "topic": "Product Lifecycle Management",
+    "sid": "Weight of end-of-life products and e-waste recovered; percentage recycled",
+    "unit": "Metric tonnes (t), Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-HW-430a.1": {
+    "topic": "Supply Chain Management",
+    "sid": "Percentage of Tier 1 supplier facilities audited in the RBA Validated Audit Process (VAP) or equivalent, by (a) all facilities and (b) high-risk facilities",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TC-HW-430a.2": {
+    "topic": "Supply Chain Management",
+    "sid": "Tier 1 suppliers' (1) non-conformance rate with the RBA Validated Audit Process (VAP) or equivalent, and (2) associated corrective action rate for (a) priority non-conformances and (b) other non-conformances",
+    "unit": "Rate",
+    "category": "Quantitative"
+  },
+  "TC-HW-440a.1": {
+    "topic": "Materials Sourcing",
+    "sid": "Description of the management of risks associated with the use of critical materials",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  }
+}

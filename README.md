@@ -88,6 +88,10 @@ sudo apt-get install tesseract-ocr tesseract-ocr-kor
 
 ### 1단계: PDF 전처리
 ```bash
+# 특정 PDF 파일 전처리
+python preprocess.py --pdf "./pdfs/삼성전자_2024.pdf" --output_dir projects/samsung_2024
+
+# 또는 디렉토리의 첫 번째 PDF 사용 (기존 방식)
 python main.py --data_dir ./pdfs --project myproj
 ```
 
@@ -115,16 +119,22 @@ GUI에서 **📊 CSV 내보내기** 버튼 클릭
 PDF 파일을 페이지별 PNG 이미지로 변환합니다.
 
 ```bash
-# 기본 사용 (텍스트만 추출)
-python main.py --data_dir ./pdfs --project myproj
+# 특정 PDF 파일 전처리 (권장)
+python preprocess.py --pdf "./pdfs/삼성전자_2024.pdf" --output_dir projects/samsung_2024
+
+# 다른 회사 보고서 추가
+python preprocess.py --pdf "./pdfs/SK하이닉스 지속가능경영보고서 2024.pdf" --output_dir projects/sk_hynix_2024
 
 # OCR 사용 (이미지/표 텍스트 추출)
-python main.py --data_dir ./pdfs --project myproj --ocr
+python preprocess.py --pdf "./pdfs/삼성전자_2024.pdf" --output_dir projects/samsung_2024 --ocr
+
+# 기존 방식 (디렉토리의 첫 번째 PDF 사용)
+python main.py --data_dir ./pdfs --project myproj
 ```
 
 **출력:**
-- `myproj/pages/*.png` - 페이지별 이미지
-- `myproj/pages/metadata.json` - 페이지 메타데이터
+- `projects/samsung_2024/pages/*.png` - 페이지별 이미지
+- `projects/samsung_2024/pages/metadata.json` - 페이지 메타데이터
 
 ### 단계 2: 후보 마이닝
 
@@ -203,7 +213,8 @@ esg-annotation-tool/
 ├── CLAUDE.md                   # Claude Code 가이드
 ├── .gitignore                  # Git 제외 파일
 │
-├── main.py                     # PDF 전처리 진입점
+├── main.py                     # PDF 전처리 진입점 (기존 방식)
+├── preprocess.py               # ⭐ PDF 전처리 (개별 파일 지원)
 ├── pdf_loader.py               # PDF → PNG 변환
 ├── ui.py                       # Tkinter UI (legacy)
 ├── utils.py                    # 유틸리티 함수
@@ -221,13 +232,20 @@ esg-annotation-tool/
 │   ├── prompts.py             # LLM 프롬프트
 │   └── heuristic_analysis.ipynb  # ⭐ 페이지 필터링 노트북
 │
-├── myproj/                    # 작업 디렉토리 (예시)
-│   ├── metric_sid_map.json    # SASB 메트릭 정의
-│   ├── metric_keywords.py     # 키워드 매핑 (365개)
-│   ├── metric_page_mapping.json  # 메트릭-페이지 매핑
-│   ├── pages/                 # PDF 페이지 PNG
-│   ├── annotations/           # 주석 JSON
-│   └── exports/               # CSV 결과
+├── projects/                   # ⭐ 회사별 프로젝트 폴더
+│   ├── samsung_2024/          # 삼성전자 2024 보고서
+│   │   ├── metric_sid_map.json    # SASB 메트릭 정의
+│   │   ├── metric_keywords.py     # 키워드 매핑 (365개)
+│   │   ├── metric_page_mapping.json  # 메트릭-페이지 매핑
+│   │   ├── pages/                 # PDF 페이지 PNG (84 pages)
+│   │   ├── annotations/           # 주석 JSON
+│   │   └── exports/               # CSV 결과
+│   └── sk_hynix_2024/         # SK하이닉스 2024 보고서
+│       ├── metric_sid_map.json
+│       ├── metric_keywords.py
+│       ├── pages/                 # PDF 페이지 PNG (99 pages)
+│       ├── annotations/
+│       └── exports/
 │
 ├── config/
 │   └── config.example.json    # LLM API 설정 템플릿
@@ -239,6 +257,8 @@ esg-annotation-tool/
 │   └── test_utils.py
 │
 └── pdfs/                      # 입력 PDF 디렉토리
+    ├── 삼성전자_2024.pdf
+    └── SK하이닉스 지속가능경영보고서 2024.pdf
 ```
 
 ---
