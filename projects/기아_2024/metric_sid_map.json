@@ -1,0 +1,74 @@
+{
+  "TR-AU-250a.1": {
+    "topic": "Product Safety",
+    "sid": "Percentage of vehicle models rated by NCAP with an overall 5-star safety rating, by region",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TR-AU-250a.2": {
+    "topic": "Product Safety",
+    "sid": "(1) Number of safety-related defect complaints, (2) percentage investigated",
+    "unit": "Number, Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TR-AU-250a.3": {
+    "topic": "Product Safety",
+    "sid": "Number of vehicles recalled",
+    "unit": "Number",
+    "category": "Quantitative"
+  },
+  "TR-AU-310a.1": {
+    "topic": "Labour Practices",
+    "sid": "Percentage of active workforce employed under collective agreements",
+    "unit": "Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TR-AU-310a.2": {
+    "topic": "Labour Practices",
+    "sid": "(1) Number of work stoppages and (2) total days idle",
+    "unit": "Number, Days idle",
+    "category": "Quantitative"
+  },
+  "TR-AU-410a.1": {
+    "topic": "Fuel Economy & Use-phase Emissions",
+    "sid": "Sales-weighted average passenger fleet fuel economy, by region",
+    "unit": "Mpg, L/km, gCO₂/km, km/L",
+    "category": "Quantitative"
+  },
+  "TR-AU-410a.2": {
+    "topic": "Fuel Economy & Use-phase Emissions",
+    "sid": "Number of (1) zero emission vehicles (ZEV), (2) hybrid vehicles and (3) plug-in hybrid vehicles sold",
+    "unit": "Number",
+    "category": "Quantitative"
+  },
+  "TR-AU-410a.3": {
+    "topic": "Fuel Economy & Use-phase Emissions",
+    "sid": "Discussion of strategy for managing fleet fuel economy and emissions risks and opportunities",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  },
+  "TR-AU-440a.1": {
+    "topic": "Materials Sourcing",
+    "sid": "Description of the management of risks associated with the use of critical materials",
+    "unit": "n/a",
+    "category": "Discussion and Analysis"
+  },
+  "TR-AU-440b.1": {
+    "topic": "Materials Efficiency & Recycling",
+    "sid": "(1) Total amount of waste from manufacturing, (2) percentage recycled",
+    "unit": "Metric tonnes (t), Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TR-AU-440b.2": {
+    "topic": "Materials Efficiency & Recycling",
+    "sid": "(1) Weight of end-of-life material recovered, (2) percentage recycled",
+    "unit": "Metric tonnes (t), Percentage (%)",
+    "category": "Quantitative"
+  },
+  "TR-AU-440b.3": {
+    "topic": "Materials Efficiency & Recycling",
+    "sid": "Average recyclability of vehicles sold",
+    "unit": "Percentage (%) by sales-weighted metric tonnes (t)",
+    "category": "Quantitative"
+  }
+}
